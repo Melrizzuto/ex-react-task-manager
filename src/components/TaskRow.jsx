@@ -1,4 +1,4 @@
-import React from "react";
+import { memo } from "react";
 
 const getStatusStyle = (status) => {
     switch (status) {
@@ -13,7 +13,7 @@ const getStatusStyle = (status) => {
     }
 };
 
-function TaskRow({ task }) {
+const TaskRow = memo(({ task }) => {
     return (
         <tr>
             <td>{task.title}</td>
@@ -21,6 +21,6 @@ function TaskRow({ task }) {
             <td>{new Date(task.createdAt).toLocaleDateString()}</td>
         </tr>
     );
-}
+});
 
-export default React.memo(TaskRow);
+export default TaskRow;
