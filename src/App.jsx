@@ -1,8 +1,8 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import TaskList from './components/TaskList';
-import AddTask from './components/AddTask';
-import NavBar from './components/NavBar';
+import TaskList from './pages/TaskList';
+import AddTask from './pages/AddTask';
+import NavBar from './pages/NavBar';
 
 function App() {
   return (
