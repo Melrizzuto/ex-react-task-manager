@@ -1,26 +1,15 @@
-import { createContext, useState, useEffect } from "react";
-import axios from "axios";
+import { createContext } from "react";
+import { useTask } from "../hooks/useTask";
 
 export const GlobalContext = createContext();
 
 
 export function GlobalProvider({ children }) {
-    const [tasks, setTasks] = useState([])
-
-    useEffect(() => {
-        axios.get("http://localhost:3001/tasks")
-            .then((res) => {
-                console.log("Tasks ricevuti:", res.data);
-                setTasks(res.data)
-            })
-            .catch((error) => {
-                console.error("errore nel ricevere i dati", error)
-            })
-    }, []);
+    const taskData = useTask();
 
     return (
         <GlobalContext.Provider
-            value={{ tasks, setTasks }}>
+            value={{ ...taskData }}>
             {children}
         </GlobalContext.Provider>
     )

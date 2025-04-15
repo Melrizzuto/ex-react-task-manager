@@ -1,59 +1,79 @@
-import { useState, useContext } from "react";
-import axios from "axios";
+import { useState, useRef, useMemo, useContext } from "react";
 import { GlobalContext } from "../contexts/GlobalContext";
 
-export default function AddTask() {
-    const [title, setTitle] = useState("");
-    const [status, setStatus] = useState("To do"); // stato iniziale
-    const { tasks, setTasks } = useContext(GlobalContext);
+const symbols = "!@#$%^&*()-_=+[]{}|;:'\"\\,.<>?/`~";
 
-    const handleSubmit = (e) => {
+export default function AddTask() {
+    const { addTask } = useContext(GlobalContext);
+    const [title, setTitle] = useState("");
+    const descriptionRef = useRef();
+    const statusRef = useRef();
+
+
+    const titleError = useMemo(() => {
+        if (!title.trim())
+            return "Campo del nome del titolo non può essere vuoto";
+        if ([...title].some(char => symbols.includes(char)))
+            return "Caratteri task non validi, non può contenere simboli";
+        return "";
+    }, [title]);
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
+        if (titleError) return;
+
         const newTask = {
-            title,
-            status,
-            createdAt: new Date().toISOString() // opzionale
+            title: title.trim(),
+            description: descriptionRef.current.value,
+            status: statusRef.current.value
         };
 
-        axios.post(`${import.meta.env.VITE_API_URL}/tasks`, newTask)
-            .then((res) => {
-                setTasks([...tasks, res.data]);
-                setTitle("");
-                setStatus("To do");
-            })
-            .catch((err) => {
-                console.error("Errore durante l'aggiunta del task:", err);
-            });
+        console.log("Sto per inviare questo task:", newTask);
+
+        try {
+            await addTask(newTask);
+            alert("Task creata con successo!");
+            setTitle("");
+            descriptionRef.current.value = "";
+            statusRef.current.value = "todo";
+        } catch (error) {
+            console.error("Errore durante l'aggiunta del task:", error);
+        }
     };
 
     return (
-        <form onSubmit={handleSubmit}>
-            <h2>Aggiungi un nuovo Task</h2>
+        <div className="add-task">
+            <h2>Aggiungi un nuovo task</h2>
+            <form onSubmit={handleSubmit}>
+                <div>
+                    <label>Nome del task:</label>
+                    <input
+                        type="text"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                    />
+                    {titleError && <p style={{ color: "red" }}>{titleError}</p>}
+                </div>
 
-            <label>
-                Titolo:
-                <input
-                    type="text"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    required
-                />
-            </label>
+                <div>
+                    <label>Descrizione:</label>
+                    <textarea ref={descriptionRef} />
+                </div>
 
-            <label>
-                Stato:
-                <select
-                    value={status}
-                    onChange={(e) => setStatus(e.target.value)}
-                >
-                    <option value="To do">Da fare</option>
-                    <option value="Doing">In corso</option>
-                    <option value="Done">Fatto</option>
-                </select>
-            </label>
+                <div>
+                    <label>Status:</label>
+                    <select ref={statusRef} defaultValue="To do">
+                        {["To do", "Doing", "Done"].map((value, index) => (
+                            <option key={index} value={value}>
+                                {value}
+                            </option>
+                        ))}
+                    </select>
+                </div>
 
-            <button type="submit">Aggiungi</button>
-        </form>
+                <button type="submit">Aggiungi Task</button>
+            </form>
+        </div>
     );
 }
