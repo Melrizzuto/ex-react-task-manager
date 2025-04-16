@@ -1,9 +1,12 @@
-import { useState, useRef, useMemo, useContext } from "react";
+import { useState, useRef, useMemo, useContext, } from "react";
 import { GlobalContext } from "../contexts/GlobalContext";
+import { useNavigate } from "react-router-dom";
 
 const symbols = "!@#$%^&*()-_=+[]{}|;:'\"\\,.<>?/`~";
 
 export default function AddTask() {
+
+    const navigate = useNavigate()
     const { addTask } = useContext(GlobalContext);
     const [title, setTitle] = useState("");
     const descriptionRef = useRef();
@@ -32,11 +35,14 @@ export default function AddTask() {
         console.log("Sto per inviare questo task:", newTask);
 
         try {
+
             await addTask(newTask);
             alert("Task creata con successo!");
             setTitle("");
             descriptionRef.current.value = "";
             statusRef.current.value = "todo";
+            navigate("/");
+
         } catch (error) {
             console.error("Errore durante l'aggiunta del task:", error);
         }
