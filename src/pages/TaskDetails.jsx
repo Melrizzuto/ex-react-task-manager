@@ -1,10 +1,11 @@
 import { useContext } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { GlobalContext } from "../contexts/GlobalContext";
 
 export default function TaskDetail() {
     const { id } = useParams()
-    const { tasks } = useContext(GlobalContext)
+    const { tasks, removeTask } = useContext(GlobalContext)
+    const navigate = useNavigate()
 
     const task = tasks.find(t => t.id === parseInt(id))
 
@@ -14,8 +15,16 @@ export default function TaskDetail() {
         )
     }
 
-    const handleRemove = () => {
-        console.log("Eliminata task numero", task.id)
+    const handleRemove = async () => {
+
+        try {
+            await removeTask(task.id)
+            alert("Task eliminato correttamente")
+            navigate("/")
+        } catch (error) {
+            console.error("errore nell'eliminazione task", error)
+            alert(error.message)
+        }
     }
     return (
         <div>
