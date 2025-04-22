@@ -40,9 +40,20 @@ export function useTask() {
 
 
 
-    const updateTask = async () => {
+    const updateTask = async (updatedTask) => {
+        const { id, ...data } = updatedTask;
 
+        const response = await axios.put(`http://localhost:3001/tasks/${id}`, data);
+
+        const { success, message, task: newTask } = response.data;
+
+        if (!success) throw new Error(message);
+
+        setTasks(prev =>
+            prev.map(oldTask => oldTask.id === newTask.id ? newTask : oldTask)
+        );
     };
+
 
     return { tasks, addTask, removeTask, updateTask };
 }
